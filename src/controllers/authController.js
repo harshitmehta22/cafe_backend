@@ -7,40 +7,35 @@ const notificationModel = require('../models/notificationModel');
 
 const signUp = async (req, res) => {
     try {
-        const { username, email, password, role } = req.body;
-        // Validate input
-        if (!username || !email || !password || !role) {
+        const { firstname, lastname, email, password } = req.body;
+        if (!firstname || !lastname || !email || !password) {
             return res.status(400).json({ message: 'All fields are required' });
         }
         const emailRegex = /.+@.+\..+/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({ message: 'Invalid email format' });
         }
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-        // Save new user
         const newUser = new User({
-            username,
+            firstname,
+            lastname,
             email,
             password: hashedPassword,
-            role: role || 'Admin',
         });
         await newUser.save();
-        // Create a notification for the admin
         const notification = new notificationModel({
-            message: `New user signed up: ${newUser.username} (${newUser.email})`,
+            message: `New user signed up: ${newUser.firstname} ${newUser.lastname} (${newUser.email})`,
             user: newUser._id,
             type: 'user-signup',
         });
         await notification.save();
-
         res.status(201).json({
             message: 'User registered successfully and notification sent to admin.',
             user: {
                 id: newUser._id,
-                username: newUser.username,
+                firstname: newUser.firstname,
+                lastname: newUser.lastname,
                 email: newUser.email,
-                role: newUser.role,
             },
         });
     } catch (error) {
@@ -53,35 +48,30 @@ const signUp = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        // Validate email and password
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
-        // Check if user exists in the database
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        // Compare the provided password with the hashed password in the database
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
-        // Generate a JWT token
         const token = jwt.sign(
             { id: user._id, email: user.email },
             process.env.JWT_SECRET, // Ensure this is defined in your .env file
             { expiresIn: '1h' } // Token expiration time
         );
-        // Return success response with the token
         res.status(200).json({
             message: 'Login successful',
             token,
             user: {
                 id: user._id,
-                username: user.username,
+                firstname: user.firstname,
+                lastname: user.lastname,
                 email: user.email,
-                role: user.role
             },
         });
     } catch (error) {
