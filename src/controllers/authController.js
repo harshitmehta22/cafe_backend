@@ -7,8 +7,8 @@ const notificationModel = require('../models/notificationModel');
 
 const signUp = async (req, res) => {
     try {
-        const { firstname, lastname, email, password } = req.body;
-        if (!firstname || !lastname || !email || !password) {
+        const { firstname, lastname, email, password, role } = req.body;
+        if (!firstname || !lastname || !email || !password || !role) {
             return res.status(400).json({ message: 'All fields are required' });
         }
         const emailRegex = /.+@.+\..+/;
@@ -21,6 +21,7 @@ const signUp = async (req, res) => {
             lastname,
             email,
             password: hashedPassword,
+            role,
         });
         await newUser.save();
         const notification = new notificationModel({
@@ -36,6 +37,7 @@ const signUp = async (req, res) => {
                 firstname: newUser.firstname,
                 lastname: newUser.lastname,
                 email: newUser.email,
+                role: newUser.role
             },
         });
     } catch (error) {
@@ -72,6 +74,7 @@ const login = async (req, res) => {
                 firstname: user.firstname,
                 lastname: user.lastname,
                 email: user.email,
+                role: user.role
             },
         });
     } catch (error) {

@@ -24,10 +24,13 @@ const userSchema = new mongoose.Schema({
     },
     resetCode: {
         type: String,
-    }, // Store the reset code
+    },
     resetCodeExpiration: {
         type: Date
     },
+    role: {
+        type: String,
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
