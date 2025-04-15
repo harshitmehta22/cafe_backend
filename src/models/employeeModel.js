@@ -8,8 +8,8 @@ const employeeSchema = new mongoose.Schema(
         position: { type: String, required: true },
         salary: { type: Number, required: true },
         joiningDate: { type: Date, required: true },
-        idProof: { type: String, required: true }, // Path to file stored on the server
-        photo: { type: String, required: true },    // Path to file stored on the server
+        idProof: { type: String, required: false }, // Path to file stored on the server
+        photo: { type: String, required: false },    // Path to file stored on the server
     },
     { timestamps: true }
 );
