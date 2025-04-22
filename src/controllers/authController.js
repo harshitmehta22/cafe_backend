@@ -7,8 +7,8 @@ const notificationModel = require('../models/notificationModel');
 
 const signUp = async (req, res) => {
     try {
-        const { firstname, lastname, email, password, role } = req.body;
-        if (!firstname || !lastname || !email || !password || !role) {
+        const { username, email, password, mobile } = req.body;
+        if (!username || !email || !password || !mobile) {
             return res.status(400).json({ message: 'All fields are required' });
         }
         const emailRegex = /.+@.+\..+/;
@@ -17,15 +17,14 @@ const signUp = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({
-            firstname,
-            lastname,
+            username,
             email,
             password: hashedPassword,
-            role,
+            mobile
         });
         await newUser.save();
         const notification = new notificationModel({
-            message: `New user signed up: ${newUser.firstname} ${newUser.lastname} (${newUser.email})`,
+            message: `New user signed up: ${newUser.username} (${newUser.email})`,
             user: newUser._id,
             type: 'user-signup',
         });
@@ -34,10 +33,9 @@ const signUp = async (req, res) => {
             message: 'User registered successfully and notification sent to admin.',
             user: {
                 id: newUser._id,
-                firstname: newUser.firstname,
-                lastname: newUser.lastname,
+                username: newUser.username,
                 email: newUser.email,
-                role: newUser.role
+                mobile: newUser.mobile
             },
         });
     } catch (error) {

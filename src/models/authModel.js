@@ -1,12 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    firstname: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    lastname: {
+    username: {
         type: String,
         required: true,
         trim: true,
@@ -28,8 +23,9 @@ const userSchema = new mongoose.Schema({
     resetCodeExpiration: {
         type: Date
     },
-    role: {
-        type: String,
+    mobile: {
+        type: Number,
+        required: true
     }
 }, { timestamps: true });
 
