@@ -69,10 +69,9 @@ const login = async (req, res) => {
             token,
             user: {
                 id: user._id,
-                firstname: user.firstname,
-                lastname: user.lastname,
+                username: user.username,
                 email: user.email,
-                role: user.role
+                mobile: user.mobile,
             },
         });
     } catch (error) {
@@ -116,8 +115,6 @@ const forgotPassword = async (req, res) => {
             subject: 'Password Reset Code',
             text: `Your password reset code is: ${verificationCode}`,
         };
-
-        // Send email
         await transporter.sendMail(mailOptions);
 
         // Respond with success

@@ -1,34 +1,41 @@
 const Product = require('../models/productModel'); // Path to your product model
 
 const addProduct = async (req, res) => {
-    const { color, brand, price, category, height, width } = req.body;
-
-    // Validate request body
-    if (!color || !brand || !price || !category
-        || !height || !width
-    ) {
-        return res.status(400).json({ message: 'All fields are required.' });
+    const {
+        name,
+        brand,
+        price,
+        category,
+        color,
+        size,
+        material
+    } = req.body;
+    // Multer adds image file to req.file
+    if (!name || !brand || !price || !category || !color || !size || !material || !req.file) {
+        return res.status(400).json({ message: "All fields and an image are required." });
     }
+
     try {
-        // Create a new product
         const newProduct = new Product({
-            color,
+            name,
             brand,
             price,
             category,
-            height,
-            width
+            color,
+            size: Array.isArray(size) ? size : [size], // Ensure size is an array
+            material,
+            image: req.file.filename // Or req.file.path if using path directly
         });
-        // Save to the database
+
         const savedProduct = await newProduct.save();
-        // Respond with the saved product
+
         res.status(201).json({
-            message: 'Product added successfully!',
-            product: savedProduct,
+            message: "Shoe product added successfully!",
+            product: savedProduct
         });
     } catch (error) {
-        console.error('Error adding product:', error.message);
-        res.status(500).json({ message: 'Server error. Unable to add product.' });
+        console.error("Error adding product:", error);
+        res.status(500).json({ message: "Server error while adding product." });
     }
 };
 const deleteProduct = async (req, res) => {
