@@ -6,22 +6,21 @@ const authRoutes = require('./routes/authRoutes.js');
 const mainRoutes = require('./routes/mainRoutes.js');
 const employeeRoutes = require('./routes/employeeRoutes.js');
 
-// Load environment variables
 dotenv.config();
-// Connect to MongoDB
 connectDB();
-
 const app = express();
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Your React frontend
+  credentials: true
+}));
 app.use(express.json()); // Express's built-in JSON body parser
-
+const path = require('path');
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', mainRoutes);
 app.use('/api', employeeRoutes);
-
+app.use('/uploads', express.static('uploads'));
 // Starting the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
