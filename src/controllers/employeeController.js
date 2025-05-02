@@ -1,25 +1,31 @@
 const Employee = require('../models/employeeModel')
-const path = require('path');
-
 
 const addEmployee = async (req, res) => {
-    const { name, address, phone, position, salary, joiningDate, idProof, photo } = req.body;
-    if (!name || !address || !phone || !position || !salary || !joiningDate || idProof || photo) {
+    const { name, address, phone, position, salary, joiningDate } = req.body;
+
+    if (!name || !address || !phone || !position || !salary || !joiningDate) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
+
+    const photo = req.files?.photo?.[0];
+    const idProof = req.files?.idProof?.[0];
+
+    if (!photo || !idProof) {
+        return res.status(400).json({ message: 'Photo and ID Proof are required.' });
+    }
+
     try {
-        const idProofPath = path.join(__dirname, 'uploads', `${Date.now()}-idproof.png`);
-        const photoPath = path.join(__dirname, 'uploads', `${Date.now()}-photo.png`);
         const newEmployee = new Employee({
             name,
             address,
             phone,
             position,
             salary,
-            joiningDate,
-            idProof: idProofPath,  // Store file path
-            photo: photoPath,      // Store file path
+            joiningDate: joiningDate,
+            photo: photo.filename,
+            idProof: idProof.filename,
         });
+
         const savedEmployee = await newEmployee.save();
         res.status(201).json({
             message: 'Employee added successfully!',
@@ -30,6 +36,7 @@ const addEmployee = async (req, res) => {
         res.status(500).json({ message: 'Server error. Unable to add employee.' });
     }
 };
+
 
 const getAllEmployees = async (req, res) => {
     try {
@@ -88,7 +95,24 @@ const updateEmployee = async (req, res) => {
     }
 };
 
+const deleteEmployee = async (req, res) => {
+    const { employeeId } = req.params;
+    if (!employeeId) {
+        return res.status(400).json({ message: 'Employee ID is required.' });
+    }
+    try {
+        const deletedEmployee = await Employee.findByIdAndDelete(employeeId);
+        if (!deletedEmployee) {
+            return res.status(404).json({ message: 'Employee not found.' });
+        }
+        res.status(200).json({ message: 'Employee deleted successfully!' });
+    } catch (error) {
+        console.error('Error deleting employee:', error.message);
+        res.status(500).json({ message: 'Server error. Unable to delete employee.' });
+    }
+}
 
 
 
-module.exports = { addEmployee, getAllEmployees,updateEmployee };
+
+module.exports = { addEmployee, getAllEmployees, updateEmployee, deleteEmployee };

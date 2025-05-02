@@ -1,6 +1,6 @@
 const express = require('express');
 const { addCategory, deleteCategory, updateCategory, getAllCategories } = require('../controllers/categoryController');
-const { addProduct, deleteProduct, editProduct, getProducts, filterProducts } = require('../controllers/productController');
+const { addProduct, deleteProduct, editProduct, getProducts, filterProducts, getFilteredProducts } = require('../controllers/productController');
 const multer = require('multer');
 const path = require("path");
 
@@ -28,6 +28,7 @@ router.get('/getproduct', getProducts);
 router.post("/addproduct", upload.single("image"), addProduct);
 router.put('/editproduct/:productId', upload.single('image'), editProduct)
 router.delete('/delete-product/:productId', deleteProduct)
-router.get('/products/filter', filterProducts)
+router.get('/products/filter', filterProducts);
+router.get('/search-products', getFilteredProducts);
 
 module.exports = router;

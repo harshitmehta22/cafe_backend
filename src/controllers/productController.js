@@ -27,7 +27,7 @@ const addProduct = async (req, res) => {
             material,
             image: req.file.filename // Or req.file.path if using path directly
         });
-        
+
 
         const savedProduct = await newProduct.save();
 
@@ -156,8 +156,33 @@ const filterProducts = async (req, res) => {
         res.status(500).json({ message: "Server error while filtering products." });
     }
 };
+const getFilteredProducts = async (req, res) => {
+    const { search } = req.query;
+
+    try {
+        const query = search
+            ? {
+                name: { $regex: search, $options: 'i' } // case-insensitive match
+            }
+            : {};
+
+        const products = await Product.find(query);
+
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'No products found.' });
+        }
+
+        res.status(200).json({
+            message: 'Products fetched successfully!',
+            products,
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error.message);
+        res.status(500).json({ message: 'Server error. Unable to fetch products.' });
+    }
+};
 
 
 
 
-module.exports = { addProduct, deleteProduct, editProduct, getProducts, filterProducts };
+module.exports = { addProduct, deleteProduct, editProduct, getProducts, filterProducts, getFilteredProducts };
