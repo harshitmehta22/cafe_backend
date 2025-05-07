@@ -181,8 +181,23 @@ const getFilteredProducts = async (req, res) => {
         res.status(500).json({ message: 'Server error. Unable to fetch products.' });
     }
 };
+const getLatestProducts = async (req, res) => {
+    try {
+        const products = await Product.find()
+            .sort({ createdAt: -1 }) // newest first
+            .limit(10);
+
+        res.status(200).json({
+            message: "Top 10 latest products fetched successfully",
+            products,
+        });
+    } catch (error) {
+        console.error("Error fetching latest products:", error.message);
+        res.status(500).json({ message: "Server error while fetching latest products." });
+    }
+};
 
 
 
 
-module.exports = { addProduct, deleteProduct, editProduct, getProducts, filterProducts, getFilteredProducts };
+module.exports = { addProduct, deleteProduct, editProduct, getProducts, filterProducts, getFilteredProducts, getLatestProducts };
