@@ -14,8 +14,19 @@ dotenv.config();
 connectDB();
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000', // Your React frontend
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json()); // Express's built-in JSON body parser
@@ -25,17 +36,21 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000', // Your frontend URL
-    methods: ['GET', 'POST'],
-  },
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST"]
+  }
 });
+io.on("connection", (socket) => {
+  console.log("⚡ New client connected:", socket.id);
 
-io.on('connection', (socket) => {
-  console.log('Socket connected:', socket.id);
+  socket.on("sendNotification", (data) => {
+    console.log("🔔 Notification received:", data);
+    io.emit("receiveNotification", data); // broadcast to all clients
+  });
 
-  // example event
-  socket.emit('admin-notification', {
-    message: 'Test notification from backend!',
+  socket.on("disconnect", () => {
+    console.log("❌ Client disconnected:", socket.id);
   });
 });
 // API Routes
@@ -46,6 +61,6 @@ app.use('/api', notificationRoutes);
 app.use('/uploads', express.static('uploads'));
 // Starting the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server with Socket.IO running on http://localhost:${PORT}`);
 });
