@@ -6,28 +6,35 @@ const addProduct = async (req, res) => {
         brand,
         price,
         category,
+        stock,
         color,
         size,
         material
     } = req.body;
+
     const image = req.file;
-    // Multer adds image file to req.file
-    if (!name || !brand || !price || !category || !color || !size || !material || !image) {
-        return res.status(400).json({ message: "All fields and an image are required." });
+
+    // Validate required fields
+    if (!name || !brand || !price || !category || !color || !size || !material || !image || stock === undefined) {
+        return res.status(400).json({ message: "All fields including stock and image are required." });
     }
 
     try {
+        const stockNumber = parseInt(stock, 10);
+        const available = stockNumber > 0; // Automatically determine availability
+
         const newProduct = new Product({
             name,
             brand,
             price,
             category,
             color,
-            size: Array.isArray(size) ? size : [size], // Ensure size is an array
+            size: Array.isArray(size) ? size : [size],
             material,
-            image: req.file.filename // Or req.file.path if using path directly
+            stock: stockNumber,
+            available,
+            image: image.filename
         });
-
 
         const savedProduct = await newProduct.save();
 

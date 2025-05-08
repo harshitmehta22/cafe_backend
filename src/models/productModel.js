@@ -5,6 +5,8 @@ const productSchema = new mongoose.Schema({
     brand: { type: String, required: true },
     price: { type: Number, required: true },
     category: { type: String, required: true },
+    stock: { type: Number, required: true },
+    available: { type: Boolean, default: true }, // Automatically set to true if stock > 0
     color: { type: String, required: true },
     size: [{ type: String, required: true }], // 👈 Accepts array of sizes
     material: { type: String, required: true },
